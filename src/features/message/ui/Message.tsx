@@ -1,16 +1,16 @@
 import React from "react";
-import {useAppDispatch, useAppSelector} from "../../../hooks/redux";
 import Snackbar from "@mui/material/Snackbar";
 import {Alert} from "@mui/material";
-import {selectIsShowMessage, selectMessage} from "../model/selectors";
-import {resetMessage} from "../model/slice";
+import { useStore } from "../../../store/storeContext";
+import { observer } from "mobx-react-lite";
 
-const Message = () => {
-    const message = useAppSelector(selectMessage);
-    const isShowMessage = useAppSelector(selectIsShowMessage);
-    const dispatch = useAppDispatch();
+
+const Message = observer(() => {
+    const { messageStore } = useStore();
+    const message = messageStore.message;
+    const isShowMessage = messageStore.isShow;
     const handleClose = () => {
-        dispatch(resetMessage());
+        messageStore.resetMessage();
     };
     return (
         <Snackbar
@@ -24,6 +24,6 @@ const Message = () => {
             </Alert>
         </Snackbar>
     );
-};
+});
 
 export default Message;

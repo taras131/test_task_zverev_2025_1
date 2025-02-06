@@ -1,18 +1,14 @@
-import { combineReducers } from "redux";
-import { configureStore } from "@reduxjs/toolkit";
-import SeminarsReducer from "features/seminars/model/slice";
-import MessageReducer from "features/message/model/slice";
+import { SeminarsStore } from "../features/seminars/model/seminarStore";
+import { MessageStore } from "../features/message/model/messageStore";
 
-const rootReducer = combineReducers({
-  seminars: SeminarsReducer,
-  message: MessageReducer,
+export class RootStore {
+  seminarsStore: SeminarsStore;
+  messageStore: MessageStore;
 
-});
-export const setupStore = () => {
-  return configureStore({
-    reducer: rootReducer,
-  });
-};
-export type RootState = ReturnType<typeof rootReducer>;
-export type AppStore = ReturnType<typeof setupStore>;
-export type AppDispatch = AppStore["dispatch"];
+  constructor() {
+    this.seminarsStore = new SeminarsStore();
+    this.messageStore = new MessageStore();
+  }
+}
+
+export const rootStore = new RootStore();

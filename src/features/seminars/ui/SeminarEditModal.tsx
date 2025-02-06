@@ -1,10 +1,7 @@
 import React, {ChangeEvent, FC, useEffect, useState} from "react";
 import ModalWindow from "../../../components/common/ModalWindow";
 import Stack from "@mui/material/Stack";
-import {useAppDispatch, useAppSelector} from "../../../hooks/redux";
-import {selectSeminarById} from "../model/selectors";
 import {IErrors, ISeminar} from "../../../models/ISeminar";
-import {fetchUpdateSeminar} from "../model/actions";
 import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
 import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, {Dayjs} from "dayjs";
@@ -15,6 +12,9 @@ import {SeminarForm} from "./SeminarForm";
 import ActionButtons from "../../../components/common/ActionButtons";
 import {validateSeminarForm} from "../../../utils/validation";
 import {SEMINAR_EDIT_MODAL, SEMINARS_FORM} from "../../../utils/consts";
+import { observer } from "mobx-react-lite";
+import { useStore } from "../../../store/storeContext";
+import { MESSAGE_SEVERITY } from "../../message/model/messageStore";
 
 dayjs.extend(customParseFormat);
 
@@ -30,8 +30,8 @@ const emptyErrors: IErrors = {
     photo: "",
 };
 
-const SeminarEditModal: FC<IProps> = ({isOpenModal, handleToggleOpen, seminarId}) => {
-    const dispatch = useAppDispatch();
+const SeminarEditModal: FC<IProps> = observer(({isOpenModal, handleToggleOpen, seminarId}) => {
+    const { seminarsStore, messageStore } = useStore();
     // state для хранение редактируемого семинара
     const [editionSeminar, setEditionSeminar] = useState<ISeminar | null>(null);
     // state для хранение ошибок валидации полей ввода
@@ -39,7 +39,7 @@ const SeminarEditModal: FC<IProps> = ({isOpenModal, handleToggleOpen, seminarId}
     // state для хранение информации о том, вносились ли изменения в семинар
     const [isEdited, setIsEdited] = useState(false);
     // получение семинара по id из redux
-    const seminar = useAppSelector(selectSeminarById(seminarId));
+    const seminar = seminarsStore.getSeminarById(seminarId);
     // при получении seminar , если он не равен null , он устанавливается в state для редактирования
     useEffect(() => {
         if (seminar) {
@@ -97,9 +97,20 @@ const SeminarEditModal: FC<IProps> = ({isOpenModal, handleToggleOpen, seminarId}
         });
     };
     // функция обрабатывает событие submit формы
-    const submitHandler = () => {
+    const submitHandler = async () => {
         if (editionSeminar && isValid) {
-            dispatch(fetchUpdateSeminar(editionSeminar));
+            const result = await seminarsStore.updateSeminar(editionSeminar);
+            if (result.success) {
+                messageStore.setMessage({
+                    severity: MESSAGE_SEVERITY.success,
+                    text: "Семинар успешно обновлён",
+                });
+            } else {
+                messageStore.setMessage({
+                    severity: MESSAGE_SEVERITY.error,
+                    text: "Ошибка обновления семинара",
+                });
+            }
             handleToggleOpen();
         }
     };
@@ -128,6 +139,6 @@ const SeminarEditModal: FC<IProps> = ({isOpenModal, handleToggleOpen, seminarId}
             </ModalWindow>
         </LocalizationProvider>
     );
-};
+});
 
 export default SeminarEditModal;

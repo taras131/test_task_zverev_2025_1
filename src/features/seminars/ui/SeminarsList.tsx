@@ -3,18 +3,19 @@ import { ISeminar } from "../../../models/ISeminar";
 import SeminarCard from "./SeminarCard";
 import Box from "@mui/material/Box";
 import ConfirmationModal from "../../../components/common/ConfirmationModal";
-import { fetchDeleteSeminar } from "../model/actions";
-import { useAppDispatch } from "../../../hooks/redux";
 import SeminarEditModal from "./SeminarEditModal";
 import Typography from "@mui/material/Typography";
 import { SEMINARS_LIST } from "../../../utils/consts";
+import { observer } from "mobx-react-lite";
+import { useStore } from "../../../store/storeContext";
+import { MESSAGE_SEVERITY } from "../../message/model/messageStore";
 
 interface IProps {
   seminars: ISeminar [];
 }
 
-const SeminarsList: FC<IProps> = ({ seminars }) => {
-  const dispatch = useAppDispatch();
+const SeminarsList: FC<IProps> = observer(({ seminars }) => {
+  const { seminarsStore, messageStore } = useStore();
   //состояние окна, которое отвечает за подтверждение удаления
   const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
   //состояние окна, которое отвечает за редактирования
@@ -32,9 +33,20 @@ const SeminarsList: FC<IProps> = ({ seminars }) => {
     setOpenEditModal(true);
   };
   // функция , которая передаётся в окно подтверждения и вызывается в случаи согласия
-  const confirmDeleteHandler = () => {
+  const confirmDeleteHandler = async () => {
     if (selectedSeminarId) {
-      dispatch(fetchDeleteSeminar(selectedSeminarId));
+      const result = await seminarsStore.deleteSeminar(selectedSeminarId);
+      if (result.success) {
+        messageStore.setMessage({
+          severity: MESSAGE_SEVERITY.success,
+          text: "Семинар успешно удалён",
+        });
+      } else {
+        messageStore.setMessage({
+          severity: MESSAGE_SEVERITY.error,
+          text: "Ошибка удаления семинара",
+        });
+      }
       setOpenConfirmationModal(false);
       setSelectedSeminarId(null);
     }
@@ -80,6 +92,6 @@ const SeminarsList: FC<IProps> = ({ seminars }) => {
       )}
     </Box>
   );
-};
+});
 
 export default SeminarsList;
