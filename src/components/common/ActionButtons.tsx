@@ -1,24 +1,35 @@
 import React, {FC} from "react";
 import {Button, Stack} from "@mui/material";
+import {ACTION_BUTTONS} from "../../utils/consts";
 
 interface IProps {
-    handleToggleOpen: () => void;
-    submitHandler: () => void;
-    isValid: boolean;
+    onCancelClick: () => void;
+    onConfirmClick: () => void;
+    isValid?: boolean;
+    confirmText?: string;
+    cancelText?: string;
 }
 
-const ActionButtons: FC<IProps> = ({handleToggleOpen, submitHandler, isValid}) => {
+const ActionButtons: FC<IProps> = ({
+                                       onCancelClick,
+                                       onConfirmClick,
+                                       isValid = true,
+                                       confirmText = ACTION_BUTTONS.DEFAULT_CONFIRM,
+                                       cancelText = ACTION_BUTTONS.DEFAULT_CANCEL,
+                                   }) => {
     return (
         <Stack sx={{width: "100%"}} direction="row" justifyContent="center" gap={10}>
-            <Button onClick={handleToggleOpen} variant="outlined">
-                Отмена
+            <Button onClick={onCancelClick}
+                    variant="outlined"
+                    aria-label="cancel">
+                {cancelText}
             </Button>
             <Button
-                onClick={submitHandler}
+                onClick={onConfirmClick}
                 variant="contained"
                 disabled={!isValid}
-            >
-                Сохранить
+                aria-label="confirm">
+                {confirmText}
             </Button>
         </Stack>
     );

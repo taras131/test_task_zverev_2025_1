@@ -1,8 +1,10 @@
 import React from "react";
 import Auth from "../features/auth/ui/Auth";
+import Seminars from "../features/seminars/ui/Seminars";
+import {Navigate} from "react-router-dom";
 
 // Тип конфигурации маршрутов
-interface RouteConfig {
+export interface IRouteConfig {
     path: string;
     element: React.ReactNode;
     label?: string; // Название для меню
@@ -10,8 +12,8 @@ interface RouteConfig {
 }
 
 // Маршруты приложения с дополнительной информацией
-export const routesConfig: RouteConfig[] = [
-    { path: "/", element: <MainMenu />, label: "Семинары", showInMenu: true },
+export const routesConfig: IRouteConfig[] = [
+    { path: "/", element: <Seminars />, label: "Семинары", showInMenu: true },
     { path: "/login", element: <Auth />, label: "Войти", showInMenu: true },
-    { path: "*", element: <Navigate to="/" />, showInMenu: false }, // 404 - редирект на главную
+    { path: "*", element: <Navigate to="/" />, showInMenu: false }, // редирект на главную
 ];
